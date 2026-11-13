@@ -161,26 +161,13 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
 .card-links a { color: var(--accent); }
 .card-links a:hover { text-decoration: underline; }
 
-/* trading */
-.trade-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 28px; }
-.chart-box, .rules { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
-.chart-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: 'JetBrains Mono'; }
-.chart-top em { font-style: normal; color: var(--muted); font-size: .75rem; }
-#price { font-size: 1.3rem; font-weight: 500; } #price.up { color: var(--up); } #price.down { color: var(--down); }
-#chart { width: 100%; height: 320px; display: block; }
-.rules h3 { font-size: 1.4rem; margin-bottom: 14px; }
-.rules ul { list-style: none; }
-.rules li { padding: 12px 0; border-bottom: 1px dashed var(--line); color: var(--muted); font-size: .95rem; }
-.rules li b { color: var(--accent); font-family: 'JetBrains Mono'; margin-right: 6px; }
-.disclaimer { margin-top: 16px; font-size: .75rem; color: var(--down); }
-
 /* hobby */
-.hobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.hobby-grid { display: grid; grid-template-columns: minmax(0, 560px); gap: 26px; justify-content: center; }
 .hobby { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px; position: relative; overflow: hidden; transition: transform .3s, border-color .3s; }
 .hobby:hover { transform: translateY(-6px); }
-.hobby.gaming:hover { border-color: var(--accent2); } .hobby.hiking:hover { border-color: var(--accent); }
+.hobby.gaming:hover { border-color: var(--accent2); }
 .hobby::before { content: ''; position: absolute; width: 200px; height: 200px; right: -60px; top: -60px; border-radius: 50%; opacity: .15; filter: blur(30px); }
-.gaming::before { background: var(--accent2); } .hiking::before { background: var(--accent); }
+.gaming::before { background: var(--accent2); }
 .h-icon { font-size: 2.6rem; margin-bottom: 10px; display: inline-block; animation: floaty 4s ease-in-out infinite; }
 .hobby h3 { font-size: 1.5rem; margin-bottom: 8px; }
 .hobby p { color: var(--muted); font-size: .95rem; }
@@ -188,11 +175,7 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
 .level div { flex: 1; height: 10px; background: var(--bg2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
 .level i { display: block; height: 100%; width: 0; transition: width 1.6s cubic-bezier(.2,.8,.2,1); }
 .gaming .level i { background: linear-gradient(90deg, #6366f1, var(--accent2)); }
-.hiking .level i { background: linear-gradient(90deg, #f59e0b, var(--accent)); }
 .hobby.in .level i { width: 88%; }
-.mountains { margin-top: 60px; text-align: center; }
-.mountains svg { width: 100%; height: 220px; display: block; }
-.mountains p { font-family: 'Space Grotesk'; font-style: italic; color: var(--muted); margin-top: 14px; }
 
 /* contact */
 .form { margin-top: 36px; display: grid; gap: 14px; }
@@ -211,7 +194,7 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
 
 /* responsive */
 @media (max-width: 900px) {
-  .about-grid, .trade-grid, .hobby-grid { grid-template-columns: 1fr; }
+  .about-grid, .hobby-grid { grid-template-columns: 1fr; }
   .avatar-card { max-width: 260px; margin: 0 auto; }
   .bars { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }

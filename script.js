@@ -25,7 +25,6 @@
   const progress = $('#progress'), nav = $('#nav');
   const sections = $$('main, section[id]');
   const navLinks = $$('#links a');
-  const front = $('#mtnFront'), back = $('#mtnBack');
   const onScroll = () => {
     const y = scrollY, h = document.documentElement.scrollHeight - innerHeight;
     progress.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
@@ -33,12 +32,6 @@
     let cur = '';
     sections.forEach(s => { if (s.id && s.getBoundingClientRect().top < innerHeight * 0.4) cur = s.id; });
     navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
-    if (front && !reduce) {
-      const r = $('.mountains').getBoundingClientRect();
-      const p = (innerHeight - r.top) / (innerHeight + r.height);
-      front.style.transform = `translateY(${(0.5 - p) * 30}px)`;
-      back.style.transform = `translateY(${(0.5 - p) * -15}px)`;
-    }
   };
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -50,7 +43,7 @@
   } else glow.style.display = 'none';
 
   /* ---------- Typing effect ---------- */
-  const roles = ['Assistant Chef of Store', 'Mahasiswa Teknologi Informasi', 'Programmer', 'Trader', 'Gamer', 'Pendaki Gunung'];
+  const roles = ['Assistant Chef of Store', 'Mahasiswa Teknologi Informasi', 'Programmer', 'Gamer'];
   const typed = $('#typed');
   let ri = 0, ci = 0, del = false;
   (function type() {
@@ -157,64 +150,4 @@
   };
   if (!reduce) drawP();
 
-  /* ---------- Simulated candlestick chart ---------- */
-  const cv = $('#chart'), cx = cv.getContext('2d');
-  const priceEl = $('#price');
-  let candles = [], price = 2350;
-  const newCandle = () => {
-    const o = price, steps = 10;
-    let h = o, l = o, c = o;
-    for (let i = 0; i < steps; i++) { c += (Math.random() - 0.48) * 4; h = Math.max(h, c); l = Math.min(l, c); }
-    price = c;
-    return { o, h, l, c };
-  };
-  for (let i = 0; i < 40; i++) candles.push(newCandle());
-  const sizeC = () => {
-    const dpr = devicePixelRatio || 1;
-    cv.width = cv.clientWidth * dpr; cv.height = cv.clientHeight * dpr;
-    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-  sizeC(); addEventListener('resize', sizeC);
-  const drawC = () => {
-    const w = cv.clientWidth, h = cv.clientHeight, pad = 10;
-    cx.clearRect(0, 0, w, h);
-    const styles = getComputedStyle(root);
-    const up = styles.getPropertyValue('--up').trim(), down = styles.getPropertyValue('--down').trim(), line = styles.getPropertyValue('--line').trim();
-    const vis = candles.slice(-Math.floor(w / 14));
-    const max = Math.max(...vis.map(c => c.h)) + 2, min = Math.min(...vis.map(c => c.l)) - 2;
-    const Y = v => pad + (max - v) / (max - min) * (h - pad * 2);
-    cx.strokeStyle = line; cx.lineWidth = 1; cx.font = '10px JetBrains Mono, monospace'; cx.fillStyle = '#8b95ab';
-    for (let i = 0; i <= 4; i++) {
-      const y = pad + i * (h - pad * 2) / 4;
-      cx.beginPath(); cx.setLineDash([3, 5]); cx.moveTo(0, y); cx.lineTo(w, y); cx.stroke(); cx.setLineDash([]);
-      cx.fillText((max - i * (max - min) / 4).toFixed(1), 4, y - 3);
-    }
-    const bw = w / vis.length;
-    vis.forEach((c, i) => {
-      const x = i * bw + bw / 2, bull = c.c >= c.o;
-      cx.strokeStyle = cx.fillStyle = bull ? up : down;
-      cx.lineWidth = 1.2;
-      cx.beginPath(); cx.moveTo(x, Y(c.h)); cx.lineTo(x, Y(c.l)); cx.stroke();
-      const top = Y(Math.max(c.o, c.c)), bh = Math.max(2, Math.abs(Y(c.o) - Y(c.c)));
-      cx.fillRect(x - bw * .3, top, bw * .6, bh);
-    });
-    const last = vis[vis.length - 1];
-    const ly = Y(last.c);
-    cx.strokeStyle = last.c >= last.o ? up : down; cx.setLineDash([4, 4]);
-    cx.beginPath(); cx.moveTo(0, ly); cx.lineTo(w, ly); cx.stroke(); cx.setLineDash([]);
-    priceEl.textContent = last.c.toFixed(2);
-    priceEl.className = last.c >= last.o ? 'up' : 'down';
-  };
-  const tick = () => {
-    // update candle terakhir, sesekali buat candle baru
-    if (Math.random() < 0.18) candles.push(newCandle());
-    else {
-      const c = candles[candles.length - 1];
-      c.c += (Math.random() - 0.48) * 1.6; c.h = Math.max(c.h, c.c); c.l = Math.min(c.l, c.c); price = c.c;
-    }
-    if (candles.length > 200) candles.shift();
-    drawC();
-  };
-  drawC();
-  if (!reduce) setInterval(tick, 350);
 })();
