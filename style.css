@@ -162,20 +162,20 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
 .card-links a:hover { text-decoration: underline; }
 
 /* hobby */
-.hobby-grid { display: grid; grid-template-columns: minmax(0, 560px); gap: 26px; justify-content: center; }
+.hobby-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 560px)); gap: 26px; justify-content: center; }
 .hobby { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px; position: relative; overflow: hidden; transition: transform .3s, border-color .3s; }
 .hobby:hover { transform: translateY(-6px); }
-.hobby.gaming:hover { border-color: var(--accent2); }
+.hobby:hover { border-color: var(--accent2); } .hobby:nth-child(even):hover { border-color: var(--accent); }
 .hobby::before { content: ''; position: absolute; width: 200px; height: 200px; right: -60px; top: -60px; border-radius: 50%; opacity: .15; filter: blur(30px); }
-.gaming::before { background: var(--accent2); }
+.hobby::before { background: var(--accent2); } .hobby:nth-child(even)::before { background: var(--accent); }
 .h-icon { font-size: 2.6rem; margin-bottom: 10px; display: inline-block; animation: floaty 4s ease-in-out infinite; }
 .hobby h3 { font-size: 1.5rem; margin-bottom: 8px; }
 .hobby p { color: var(--muted); font-size: .95rem; }
 .level { display: flex; align-items: center; gap: 12px; margin-top: 20px; font-family: 'JetBrains Mono'; font-size: .75rem; color: var(--muted); }
 .level div { flex: 1; height: 10px; background: var(--bg2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
 .level i { display: block; height: 100%; width: 0; transition: width 1.6s cubic-bezier(.2,.8,.2,1); }
-.gaming .level i { background: linear-gradient(90deg, #6366f1, var(--accent2)); }
-.hobby.in .level i { width: 88%; }
+.hobby .level i { background: linear-gradient(90deg, #6366f1, var(--accent2)); } .hobby:nth-child(even) .level i { background: linear-gradient(90deg, #f59e0b, var(--accent)); }
+.hobby.in .level i { width: var(--lvl, 88%); }
 
 /* contact */
 .form { margin-top: 36px; display: grid; gap: 14px; }
@@ -194,7 +194,7 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
 
 /* responsive */
 @media (max-width: 900px) {
-  .about-grid, .hobby-grid { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
   .avatar-card { max-width: 260px; margin: 0 auto; }
   .bars { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
@@ -212,3 +212,8 @@ h1, h2, h3, .logo { font-family: 'Space Grotesk', sans-serif; line-height: 1.15;
   * { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* preview banner */
+.preview-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; padding: 10px 5vw; text-align: center; font-size: .85rem; background: var(--accent); color: #fff; }
+.preview-banner[hidden] { display: none; }
+.preview-banner a { text-decoration: underline; font-weight: 600; }
