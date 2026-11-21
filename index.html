@@ -9,10 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="features.css" />
 </head>
 <body>
   <div class="progress" id="progress"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="spotlight" id="spotlight"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
   <div class="preview-banner" id="previewBanner" hidden>Mode pratinjau — menampilkan draf dari menu admin. <a href="admin.html">Kembali ke admin</a></div>
 
   <!-- NAV -->
@@ -20,6 +23,7 @@
     <a href="#home" class="logo" id="logo">FR<span>.</span></a>
     <nav class="links" id="links"></nav>
     <div class="nav-actions">
+      <button class="search-btn" id="searchBtn" aria-label="Buka command palette">🔍 <span>Cari</span> <kbd>Ctrl K</kbd></button>
       <button class="icon-btn" id="themeBtn" aria-label="Ganti tema">☾</button>
       <button class="icon-btn burger" id="burger" aria-label="Menu">☰</button>
     </div>
@@ -29,6 +33,7 @@
   <section class="hero" id="home">
     <canvas id="particles"></canvas>
     <div class="hero-inner">
+      <div class="avail reveal" id="heroAvail" hidden><i></i><span></span></div>
       <p class="eyebrow reveal" id="heroEyebrow"></p>
       <h1 class="reveal" id="heroName"></h1>
       <p class="typed reveal"><span id="typed"></span><span class="caret">|</span></p>
@@ -36,6 +41,7 @@
       <div class="cta reveal">
         <a href="#projects" class="btn primary" id="cta1"></a>
         <a href="#contact" class="btn ghost" id="cta2"></a>
+        <a href="#" class="btn ghost" id="ctaCv" download hidden></a>
       </div>
       <div class="chips reveal" id="heroChips"></div>
     </div>
@@ -49,6 +55,25 @@
     <p>© <span id="year"></span> <span id="footName"></span>. <span id="footText"></span></p>
     <a href="#home" class="to-top" aria-label="Kembali ke atas">↑</a>
   </footer>
+
+  <!-- Command palette -->
+  <div class="overlay" id="palette" hidden role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="pal-box">
+      <input id="palInput" type="text" placeholder="Ketik perintah atau cari… (mis. proyek, email, tema)" autocomplete="off" />
+      <ul id="palList" role="listbox"></ul>
+      <div class="pal-foot"><span>↑↓ pilih</span><span>Enter jalankan</span><span>Esc tutup</span></div>
+    </div>
+  </div>
+
+  <!-- Modal proyek -->
+  <div class="overlay" id="modal" hidden role="dialog" aria-modal="true" aria-label="Detail proyek">
+    <div class="modal-box">
+      <button class="modal-x" id="modalX" aria-label="Tutup">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="content.js"></script>
   <script src="script.js"></script>

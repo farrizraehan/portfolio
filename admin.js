@@ -12,6 +12,14 @@
     if (s) { data = JSON.parse(s); fromDraft = true; }
   } catch (e) {}
   if (!data) data = clone(DEFAULT);
+  // draf lama: lengkapi kunci baru dari versi terbaru (array tidak diubah)
+  const fill = (t, d) => {
+    Object.keys(d).forEach(k => {
+      if (t[k] === undefined) t[k] = clone(d[k]);
+      else if (d[k] && typeof d[k] === 'object' && !Array.isArray(d[k]) && t[k] && typeof t[k] === 'object' && !Array.isArray(t[k])) fill(t[k], d[k]);
+    });
+  };
+  if (fromDraft) fill(data, DEFAULT);
 
   const get = (o, path) => path.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);
   const set = (o, path, v) => {
@@ -57,7 +65,9 @@
       { k: 'footerText', t: 'text', l: 'Teks footer' },
       { k: 'theme.mode', t: 'select', l: 'Tema bawaan', options: [['dark', 'Gelap'], ['light', 'Terang']] },
       { k: 'theme.accent', t: 'color', l: 'Warna aksen utama' },
-      { k: 'theme.accent2', t: 'color', l: 'Warna aksen kedua' }
+      { k: 'theme.accent2', t: 'color', l: 'Warna aksen kedua' },
+      { k: 'effects.cursor', t: 'check', l: 'Kursor kustom (titik + cincin)' },
+      { k: 'effects.spotlight', t: 'check', l: 'Efek spotlight mengikuti mouse' }
     ] },
     { id: 'hero', icon: '🏠', label: 'Hero (Beranda)', fields: [
       { k: 'hero.eyebrow', t: 'text', l: 'Teks kecil di atas nama' },
@@ -65,7 +75,11 @@
       { k: 'hero.lead', t: 'textarea', l: 'Kalimat pembuka' },
       { k: 'hero.chips', t: 'lines', l: 'Lencana di bawah tombol', hint: 'Satu per baris, boleh pakai emoji.' },
       { k: 'hero.cta1', t: 'text', l: 'Teks tombol utama' },
-      { k: 'hero.cta2', t: 'text', l: 'Teks tombol kedua' }
+      { k: 'hero.cta2', t: 'text', l: 'Teks tombol kedua' },
+      { k: 'hero.available.show', t: 'check', l: 'Tampilkan status "Available for Work" (titik hijau berkedip)' },
+      { k: 'hero.available.text', t: 'text', l: 'Teks status', hint: 'mis. Available for Work, Open to Freelance' },
+      { k: 'hero.cvUrl', t: 'text', l: 'File / link CV', hint: 'Taruh cv.pdf di folder proyek lalu isi cv.pdf — atau tempel link Google Drive. Kosong = tombol Download CV disembunyikan.' },
+      { k: 'hero.cvLabel', t: 'text', l: 'Teks tombol CV' }
     ] },
     { id: 'about', icon: '👤', label: 'Tentang', fields: [
       ...secFields('about'),
@@ -73,10 +87,29 @@
       { k: 'about.initials', t: 'text', l: 'Inisial (jika tanpa foto)' },
       { k: 'about.status', t: 'text', l: 'Lencana status', hint: 'Kosongkan untuk menyembunyikan.' },
       { k: 'about.paragraphs', t: 'strings', l: 'Paragraf', hint: 'Pakai **teks** untuk huruf tebal.', blank: '' },
-      { k: 'about.stats', t: 'repeater', l: 'Statistik angka', blank: () => ({ value: 0, label: '' }), title: i => `${i.label || 'Statistik'}`, fields: [
-        { k: 'value', t: 'number', l: 'Angka' }, { k: 'label', t: 'text', l: 'Label' }
+      { k: 'about.location', t: 'text', l: 'Lokasi', hint: 'Kosongkan untuk menyembunyikan kotak lokasi.' },
+      { k: 'about.timezone', t: 'text', l: 'Zona waktu (jam lokal)', hint: 'Format IANA, mis. Asia/Jakarta, Asia/Makassar, Asia/Jayapura.' },
+      { k: 'about.techStack', t: 'repeater', l: 'Tech stack & tools (ikon interaktif)', blank: () => ({ icon: '🔹', name: '', note: '' }), title: t => `${t.icon || ''} ${t.name || 'Tool'}`, fields: [
+        { k: 'icon', t: 'text', l: 'Ikon (emoji)' }, { k: 'name', t: 'text', l: 'Nama' }, { k: 'note', t: 'text', l: 'Keterangan singkat (tampil saat diklik)' }
       ] },
-      { k: 'about.statsNote', t: 'text', l: 'Catatan kecil di bawah statistik', hint: 'Kosongkan untuk menghapus.' }
+      { k: 'about.stats', t: 'repeater', l: 'Statistik angka (animasi naik saat scroll, maks. 4)', blank: () => ({ value: 0, suffix: '+', label: '' }), title: i => `${i.value || 0}${i.suffix || ''} ${i.label || ''}`, fields: [
+        { k: 'value', t: 'number', l: 'Angka' }, { k: 'suffix', t: 'text', l: 'Akhiran', hint: 'mis. + atau " th"' }, { k: 'label', t: 'text', l: 'Label' }
+      ] },
+      { k: 'about.statsNote', t: 'text', l: 'Catatan kecil di bawah bento grid', hint: 'Kosongkan untuk menghapus.' }
+    ] },
+    { id: 'now', icon: '🛰', label: 'Widget Aktivitas', fields: [
+      { k: 'now.show', t: 'check', l: 'Tampilkan widget "Sedang saya kerjakan"' },
+      { k: 'now.title', t: 'text', l: 'Judul widget' },
+      { k: 'now.items', t: 'repeater', l: 'Yang sedang dikerjakan', blank: () => ({ title: '', note: '', progress: 50 }), title: i => `${i.title || 'Item'} — ${i.progress || 0}%`, fields: [
+        { k: 'title', t: 'text', l: 'Judul' }, { k: 'note', t: 'text', l: 'Catatan' }, { k: 'progress', t: 'number', l: 'Progres 0–100', min: 0, max: 100, hint: '0 = bar disembunyikan.' }
+      ] },
+      { k: 'now.github.show', t: 'check', l: 'Tampilkan aktivitas GitHub (repo terbaru, otomatis)' },
+      { k: 'now.github.user', t: 'text', l: 'Username GitHub', hint: 'Data diambil langsung dari API publik GitHub oleh browser pengunjung.' },
+      { k: 'now.github.title', t: 'text', l: 'Judul kotak GitHub' },
+      { k: 'now.listening.show', t: 'check', l: 'Tampilkan "Sedang didengarkan" (diisi manual)' },
+      { k: 'now.listening.track', t: 'text', l: 'Judul lagu' },
+      { k: 'now.listening.artist', t: 'text', l: 'Artis' },
+      { k: 'now.listening.url', t: 'text', l: 'Link Spotify (opsional)', hint: 'Ini tampilan manual, bukan integrasi live Spotify.' }
     ] },
     { id: 'skills', icon: '🛠', label: 'Skill', fields: [
       ...secFields('skills'),
@@ -90,22 +123,33 @@
     ] },
     { id: 'journey', icon: '🧭', label: 'Perjalanan', fields: [
       ...secFields('journey'),
-      { k: 'experience', t: 'repeater', l: 'Pengalaman & pendidikan (urut dari atas)', blank: () => ({ period: '', title: '', place: '', desc: '' }), title: e => `${e.title || 'Item'} · ${e.period || ''}`, fields: [
+      { k: 'experience', t: 'repeater', l: 'Pengalaman & pendidikan (urut dari atas)', blank: () => ({ type: 'work', period: '', title: '', place: '', desc: '', details: [] }), title: e => `${e.type === 'education' ? '🎓' : '💼'} ${e.title || 'Item'} · ${e.period || ''}`, fields: [
+        { k: 'type', t: 'select', l: 'Jenis', options: [['work', '💼 Pengalaman kerja'], ['education', '🎓 Pendidikan']] },
         { k: 'period', t: 'text', l: 'Periode', hint: 'mis. 2021 – 2023 atau Sekarang' }, { k: 'title', t: 'text', l: 'Jabatan / gelar' },
-        { k: 'place', t: 'text', l: 'Tempat' }, { k: 'desc', t: 'textarea', l: 'Deskripsi' }
+        { k: 'place', t: 'text', l: 'Tempat' }, { k: 'desc', t: 'textarea', l: 'Deskripsi' },
+        { k: 'details', t: 'lines', l: 'Detail (muncul saat item diklik)', hint: 'Satu poin per baris. Kosong = item tidak bisa dibuka.' }
       ] }
     ] },
     { id: 'projects', icon: '📁', label: 'Proyek', fields: [
       ...secFields('projects'),
-      { k: 'projects', t: 'repeater', l: 'Daftar proyek', blank: () => ({ icon: '📁', title: 'Proyek baru', desc: '', tags: [], demo: '', code: '', category: 'Web' }), title: p => `${p.icon || ''} ${p.title || 'Proyek'}`, fields: [
+      { k: 'projects', t: 'repeater', l: 'Daftar proyek', blank: () => ({ icon: '📁', title: 'Proyek baru', desc: '', tags: [], demo: '', code: '', category: 'Web', year: '', role: '', story: '', highlights: [] }), title: p => `${p.icon || ''} ${p.title || 'Proyek'}`, fields: [
         { k: 'icon', t: 'text', l: 'Ikon (emoji)' }, { k: 'title', t: 'text', l: 'Judul' },
-        { k: 'desc', t: 'textarea', l: 'Deskripsi' },
+        { k: 'desc', t: 'textarea', l: 'Deskripsi singkat (di kartu)' },
         { k: 'tags', t: 'lines', l: 'Teknologi', hint: 'Satu per baris.' },
-        { k: 'category', t: 'text', l: 'Kategori (untuk filter)', hint: 'Filter muncul otomatis jika ada ≥ 2 kategori berbeda.' },
-        { k: 'demo', t: 'text', l: 'Link demo', hint: 'Kosongkan jika tidak ada — tombol disembunyikan.' },
-        { k: 'code', t: 'text', l: 'Link kode (GitHub)' }
+        { k: 'category', t: 'text', l: 'Kategori (untuk filter)', hint: 'mis. Web, Desain, Lainnya. Filter muncul otomatis jika ada ≥ 2 kategori berbeda.' },
+        { k: 'year', t: 'text', l: 'Tahun (di modal)' }, { k: 'role', t: 'text', l: 'Peran Anda (di modal)' },
+        { k: 'story', t: 'textarea', rows: 6, l: 'Studi kasus lengkap (di modal)', hint: 'Ceritakan masalah, solusi, dan hasil. Enter dua kali = paragraf baru.' },
+        { k: 'highlights', t: 'lines', l: 'Sorotan (poin-poin di modal)', hint: 'Satu per baris.' },
+        { k: 'demo', t: 'text', l: 'Link Live Demo', hint: 'Kosongkan jika tidak ada — tombol disembunyikan.' },
+        { k: 'code', t: 'text', l: 'Link Source Code (GitHub)' }
       ] },
       { k: 'projectsNote', t: 'text', l: 'Catatan di bawah daftar proyek', hint: 'Kosongkan untuk menghapus.' }
+    ] },
+    { id: 'testimonials', icon: '💬', label: 'Testimoni', fields: [
+      ...secFields('testimonials'),
+      { k: 'testimonials', t: 'repeater', l: 'Daftar testimoni (slider otomatis)', blank: () => ({ name: '', role: '', text: '' }), title: t => `${t.name || 'Testimoni'}`, fields: [
+        { k: 'name', t: 'text', l: 'Nama' }, { k: 'role', t: 'text', l: 'Jabatan / perusahaan' }, { k: 'text', t: 'textarea', l: 'Kutipan' }
+      ] }
     ] },
     { id: 'hobby', icon: '🎮', label: 'Hobi', fields: [
       ...secFields('hobby'),
